@@ -1,0 +1,98 @@
+---
+title: "netWorth"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    source_code: embed
+    theme: 'bootstrap'
+runtime: shiny
+---
+
+
+
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(knitr)
+library(DT)
+library(highcharter)
+library(rpivotTable)
+library(ggplot2)
+library(openintro)
+library(dplyr)
+library(tidyverse)
+library(plotly)
+library(maps)
+library(datasets)
+library(FinCal)
+
+library(shiny)
+
+```
+
+```{r}
+data <- read.csv("~/Documents/GitHub/netWorth/data.csv")
+```
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+Input expected interest rate and cost of rent
+
+```{r}
+sliderInput("interest", label = "Interest rate:",
+            min = 0.01, max = 0.1, value = 0.07, step = 0.01)
+
+sliderInput("rentCost", label = "Monthly Rent:",
+            min = 1200, max = 2000, value = 1500, step = 100)
+
+sliderInput("investment", label = "Annual Investment:",
+            min = 0, max = 2000, value = 500, step = 100)
+
+sliderInput("mortgage", label = "Monthly Mortgage:",
+            min = 0, max = 3000, value = 1500, step = 100)
+
+
+
+time <- c(1:20)
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Expected Net Worth
+
+```{r}
+renderPlot({
+  
+  difference <-  input$mortgage - input$rentCost
+  
+  plot(time,
+       (-1 * fv(input$interest, time, 0, input$investment, type = 0)),
+       xlab = "Years",
+       ylab = "Net Worth",
+       type="l",
+       col='blue'
+       )
+ lines(time,
+        time*(input$investment+input$mortgage*0.2),
+        col='red'
+        )
+  
+  legend("topleft",
+         legend = c("Rent","Purchase"),
+         col = c('blue','red'),
+         pch = c(19,19)
+    
+  )
+  
+  
+}
+
+      # input$investment*(1+(input$interest/4))^(time*4) +(((1+(input$interest/4))^(time*4)) - 1) / (input$interest/4) + 
+      #   input$investment * {[(1 + input$interest/4)^(4*time) - 1] / (input$interest/4)},
+)
+```
+
+
